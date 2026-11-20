@@ -10,9 +10,106 @@ tags:
     - structuri de date
 ---
 
-Sweep line (geometric/algebric)
+### Ce inseamna baleierea (Sweep-line)
 
-Sweep line geometric
+[Baleierea](https://ro.wikipedia.org/wiki/Algoritm_de_baleiere) reprezinta metoda de parcurgere a informatiei dupa directia unei drepte.
+Ea ajuta la parcurgerea informatiei dintr-un plan intr-o ordine logica si usor de utilizat.
+In problemele de informatica, baleierea poate fi folosita in doua moduri:
+- Baleiere geometrica: Pentru probleme ce contin puncte in plan ce trebuie procesate.
+- Baleiere algebrica: Pentru probleme ce impun mai multe conditii de inegalitate.
+
+
+### Sweep-line geometric
+
+Baleierea geometrica ajuta la rezolvarea problemelor ce utilizeaza forme geometrice, precum drepte/segmente, dreptunghiuri sau triunghiuri.
+
+### Problema [Restaurant Customers](https://cses.fi/problemset/task/1619) (usoara)
+
+Problema introductiva Restaurant Customers ne cere sa vedem numarul maxim de clienti dintr-un moment.
+Situatia din restaurant poate fi vazuta ca o dreapta de timp cu mai multe segmente, iar cerinta se poate traduce in: "dandu-se $n$ segmente, sa se gaseasca cardinalul intersectiei nevide maxime.".
+
+O prima metoda de rezolvare este sa folosim Smenul lui Mars pentru a adauga $+1$ pe intervalul de timp al fiecarui client.
+Problema este ca timpii de venire si de plecare ale clientilor pot fi foarte mari, ceea ce nu ne permite sa folosim un vector.
+
+O observatie este ca nu toti timpii sunt importanti. Daca un client este in restaurant pe intervalul de timp $[1,10]$, iar un alt client, pe $[6,15]$, timpi precum cei din intervalul $[1,5]$ au aceeasi valoare: $1$.
+Astfel, putem vedea ca ne interseaza doar momentele in care vin sau pleaca clienti.
+Aceste momente le vom incapsula intr-o structura $Event$ si le vom parcurge in ordine crescatoare dupa momentul in care au loc. (de observat ca plecarea are loc la momentul $r + 1$)
+
+De ce este nevoie de compararea dupa $delta$?
+Deoarece exista mai multe evenimente ce se intampla in acelasi moment.
+Astfel, daca la momentul $t$ vine un client si pleaca un altul, iar noi procesam prima data sosirea, atunci vom obtine un rezultat mai mare decat cel dorit.
+Pentru rezolvarea acetui caz, sortarea se face si crescator dupa delta.
+O alta varianta ar fi fost procesarea impreuna a evenimentelor simultane:
+
+```cpp
+for (int i = 1; i <= 2 * n; i++) {
+        cnt += events[i].delta;
+        if (i==n*2 || events[i].t!=events[i+1].t)
+            answer = max(answer, cnt);
+    }
+```
+
+Sursa completa cu sortare si dupa delta
+
+```cpp
+#include <bits/stdc++.h>
+ 
+using namespace std;
+ 
+const int nmax = 2e5;
+ 
+struct Event {
+    int t, delta;
+    bool operator <(const Event &other) const {
+        if (t != other.t)
+            return t < other.t;
+        return delta < other.delta;
+    }
+} events[2 * nmax + 1];
+ 
+int n, answer;
+ 
+void read() {
+    cin >> n;
+    for (int i = 1; i <= n; i++) {
+        int l, r;
+        cin >> l >> r;
+        events[i] = {l, 1};
+        events[i + n] = {r + 1, -1};
+    }
+}
+ 
+void sweep() {
+    int cnt = 0;
+    for (int i = 1; i <= 2 * n; i++) {
+        cnt += events[i].delta;
+        answer = max(answer, cnt);
+    }
+}
+ 
+void print() {
+    cout << answer;
+}
+ 
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    read();
+    sort(events + 1, events + n * 2 + 1);
+    sweep();
+    print();
+    return 0;
+}
+```
+
+Practic, noi am mers cu o dreapta, de la stanga la dreapta, prin mai multe intervale, tinand mereu minte cate intervale deschise avem.
+
+!!! note "Observații"
+    Trebuie acordata atentie cazului de egalitate dintre evenimente. (ce se intampla cand dreapta cu care baleiem atinge doua evenimente in acelasi timp?)
+
+
+
+
 
 
 Algoritmul de baielere (sweep line) consta in parcurgerea punctelor dintr-un plan folosind o dreapta (verticala, orizontala sau oblica).
@@ -28,7 +125,7 @@ Parcurgerea punctelor dupa o dreapta presupune sortarea lor. (de exemplu: pentru
     De asemenea, trebuie acordata atentie cazului de egalitate dintre evenimente. (ce se intampla cand dreapta cu care baleiem atinge doua evenimente in acelasi timp?)
 
 Problema clasica 
-Restaurant Customers https://cses.fi/problemset/task/1619
+Restaurant Customers https://cses.fi/problemset/task/1619 OKKKKKKKKKKKKK
 
 
 
